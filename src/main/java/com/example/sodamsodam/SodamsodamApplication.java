@@ -1,0 +1,13 @@
+package com.example.sodamsodam;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SodamsodamApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SodamsodamApplication.class, args);
+    }
+
+}
