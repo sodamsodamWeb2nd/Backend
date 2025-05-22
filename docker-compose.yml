@@ -15,16 +15,30 @@ services:
     networks:
       - my-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: sodamsodam-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - my-network
+
   spring:
     build: .
     container_name: sodamsodam-app
     depends_on:
       - mysql
+      - redis
     environment:
       SPRING_DATASOURCE_URL: ${DB_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "8080:8080"
     networks:
@@ -32,6 +46,7 @@ services:
 
 volumes:
   mysql-data:
+  redis-data:
 
 networks:
   my-network:

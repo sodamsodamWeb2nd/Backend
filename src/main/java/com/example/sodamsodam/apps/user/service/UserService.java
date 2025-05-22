@@ -15,6 +15,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public void signup(UserSignupRequest request) {
         UserPersonalInfo user = new UserPersonalInfo();
@@ -33,5 +34,14 @@ public class UserService {
             throw new AuthenticationException("이메일 또는 비밀번호가 일치하지 않습니다");
         }
         return jwtProvider.generateToken(user.getUserId());
+    }
+
+    // 로그아웃 메서드 추가
+    public void logout(String token) {
+        if (token != null && jwtProvider.validateToken(token)) {
+            // 토큰의 만료시간을 가져와서 블랙리스트에 추가
+            long expirationTime = jwtProvider.getExpirationFromToken(token).getTime();
+            tokenBlacklistService.addToBlacklist(token, expirationTime);
+        }
     }
 }
