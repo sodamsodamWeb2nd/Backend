@@ -7,6 +7,7 @@ import com.example.sodamsodam.apps.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.sodamsodam.apps.common.exception.AuthenticationException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +28,9 @@ public class UserService {
 
     public String login(UserLoginRequest request) {
         UserPersonalInfo user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AuthenticationException("사용자를 찾을 수 없습니다"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new AuthenticationException("이메일 또는 비밀번호가 일치하지 않습니다");
         }
         return jwtProvider.generateToken(user.getUserId());
     }
