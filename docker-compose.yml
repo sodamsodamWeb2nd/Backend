@@ -39,6 +39,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
     ports:
       - "8080:8080"
     networks:

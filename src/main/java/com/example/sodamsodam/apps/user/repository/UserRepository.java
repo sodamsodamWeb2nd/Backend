@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<UserPersonalInfo, Long> {
     Optional<UserPersonalInfo> findByEmail(String email);
+    Optional<UserPersonalInfo> findByKakaoId(String kakaoId);  // 카카오 ID로 조회
 }
