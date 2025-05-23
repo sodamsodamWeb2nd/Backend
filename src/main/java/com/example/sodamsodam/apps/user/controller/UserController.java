@@ -3,6 +3,7 @@ package com.example.sodamsodam.apps.user.controller;
 import com.example.sodamsodam.apps.user.dto.*;
 import com.example.sodamsodam.apps.user.entity.UserPersonalInfo;
 import com.example.sodamsodam.apps.user.service.UserService;
+import com.example.sodamsodam.apps.user.service.KakaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,17 +11,31 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Tag(name = "User", description = "사용자 인증 및 관리 API")
 public class UserController {
     private final UserService userService;
+    private final KakaoService kakaoService;
+
+    @Value("${kakao.client.id:}")
+    private String clientId;
+
+    @Value("${kakao.redirect.uri:http://localhost:8080/api/users/kakao/callback}")
+    private String redirectUri;
 
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
     @ApiResponses(value = {
@@ -68,6 +83,38 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal UserPersonalInfo user) {
         return ResponseEntity.ok(new UserResponse(user));
+    }
+
+    @Operation(summary = "카카오 로그인 페이지 URL 조회",
+            description = "카카오 로그인 페이지로 리다이렉트할 URL을 반환합니다.")
+    @GetMapping("/kakao/login-url")
+    public ResponseEntity<Map<String, String>> getKakaoLoginUrl() {
+        String kakaoLoginUrl = "https://kauth.kakao.com/oauth/authorize" +
+                "?client_id=" + clientId +
+                "&redirect_uri=" + redirectUri +
+                "&response_type=code";
+
+        Map<String, String> response = new HashMap<>();
+        response.put("loginUrl", kakaoLoginUrl);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "카카오 로그인 콜백",
+            description = "카카오 인가 코드를 받아 로그인 처리 후 JWT 토큰을 발급합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "카카오 로그인 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 인가 코드"),
+            @ApiResponse(responseCode = "500", description = "카카오 API 오류")
+    })
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<LoginResponse> kakaoCallback(@RequestParam String code) {
+        try {
+            String jwt = kakaoService.processKakaoLogin(code);
+            return ResponseEntity.ok(new LoginResponse(jwt));
+        } catch (Exception e) {
+            log.error("카카오 로그인 처리 중 오류", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // HTTP 헤더에서 토큰을 추출하는 헬퍼 메서드
