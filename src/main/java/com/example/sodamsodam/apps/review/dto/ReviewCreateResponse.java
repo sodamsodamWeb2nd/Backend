@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Schema(description = "리뷰 작성 응답 DTO")
-public class ReviewResponse {
+public class ReviewCreateResponse {
 
     @Schema(description = "생성된 리뷰의 ID", example = "1")
     private Long reviewId;

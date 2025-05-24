@@ -1,7 +1,7 @@
 package com.example.sodamsodam.apps.review.controller;
 
-import com.example.sodamsodam.apps.review.dto.ReviewRequest;
-import com.example.sodamsodam.apps.review.dto.ReviewResponse;
+import com.example.sodamsodam.apps.review.dto.ReviewCreateRequest;
+import com.example.sodamsodam.apps.review.dto.ReviewCreateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,9 +28,9 @@ public class ReviewController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @PostMapping("/{place_id}/reviews")
-    public ResponseEntity<ReviewResponse> createReview(@PathVariable Long place_id, @RequestBody @Valid ReviewRequest request) {
+    public ResponseEntity<ReviewCreateResponse> createReview(@PathVariable Long place_id, @RequestBody @Valid ReviewCreateRequest request) {
         // 리뷰 ID 값은 나중에 기능 구현후 생성된 리뷰 ID 값으로 대체 예정
-        ReviewResponse response = new ReviewResponse(1L,"리뷰가 성공적으로 등록되었습니다");
+        ReviewCreateResponse response = new ReviewCreateResponse(1L,"리뷰가 성공적으로 등록되었습니다");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

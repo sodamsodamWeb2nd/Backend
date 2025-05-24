@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Schema(description = "리뷰 작성 요청 DTO")
-public class ReviewRequest {
+public class ReviewCreateRequest {
 
     @Schema(description = "리뷰 내용", example = "좋아요")
     @NotBlank(message = "내용은 필수입니다.")
