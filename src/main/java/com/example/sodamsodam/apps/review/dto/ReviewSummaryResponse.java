@@ -11,7 +11,7 @@ import java.util.List;
 @Schema(description = "리뷰 전체 응답 DTO")
 public class ReviewSummaryResponse {
 
-    @Schema(description = "생성된 리뷰의 ID", example = "1")
+    @Schema(description = "조회할 리뷰의 ID", example = "1")
     private Long reviewId;            // 리뷰 ID
 
     @Schema(description = "작성한 유저 이름",example = "소담이")
