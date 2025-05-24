@@ -49,4 +49,18 @@ public class ReviewController {
         ReviewSummaryResponse response = new ReviewSummaryResponse();
         return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonList(response));
     }
+
+    @Operation(summary = "로그인 유저의 리뷰 전체 조회", description = "로그인한 유저가 작성한 리뷰를 전체 조회합니다")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "리뷰 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 장소"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    @GetMapping("/{place_id}/reviews/me")
+    public ResponseEntity<List<ReviewSummaryResponse>> getMyReviews(@PathVariable Long place_id) {
+        // 현재는 아무런 값이 없는 응답 DTO만 반환 -> 추후 로직 구현 단계에서 추가 예정
+        ReviewSummaryResponse response = new ReviewSummaryResponse();
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonList(response));
+    }
 }
