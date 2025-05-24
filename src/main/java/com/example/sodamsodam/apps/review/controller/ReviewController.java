@@ -2,6 +2,7 @@ package com.example.sodamsodam.apps.review.controller;
 
 import com.example.sodamsodam.apps.review.dto.ReviewCreateRequest;
 import com.example.sodamsodam.apps.review.dto.ReviewCreateResponse;
+import com.example.sodamsodam.apps.review.dto.ReviewDetailResponse;
 import com.example.sodamsodam.apps.review.dto.ReviewSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -62,5 +63,18 @@ public class ReviewController {
         // 현재는 아무런 값이 없는 응답 DTO만 반환 -> 추후 로직 구현 단계에서 추가 예정
         ReviewSummaryResponse response = new ReviewSummaryResponse();
         return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonList(response));
+    }
+
+    @Operation(summary = "리뷰 단건 조회", description = "특정 리뷰를 조회합니다")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "리뷰 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 장소/존재하지 않는 리뷰"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    @GetMapping("/{place_id}/reviews/{review_id}")
+    public ResponseEntity<ReviewDetailResponse> getReview(@PathVariable Long place_id,@PathVariable Long review_id) {
+        // 현재는 아무런 값이 없는 응답 DTO만 반환 -> 추후 로직 구현 단계에서 추가 예정
+        ReviewDetailResponse response = new ReviewDetailResponse();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
