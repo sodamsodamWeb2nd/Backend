@@ -9,8 +9,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,8 +30,13 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 장소"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    @PostMapping("/{place_id}/reviews")
-    public ResponseEntity<ReviewCreateResponse> createReview(@PathVariable Long place_id, @RequestBody @Valid ReviewCreateRequest request) {
+    @PostMapping(value = "/{place_id}/reviews",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ReviewCreateResponse> createReview(@PathVariable Long place_id,
+                                                             @RequestPart("request") @Valid ReviewCreateRequest request,
+                                                             @RequestPart(value = "images",required = false) List<MultipartFile> images) { // 이미지 파일 업로드 방식 S3로 변경
+        if (images == null || images.size() > 3) {
+            throw new IllegalArgumentException("이미지는 최대 3장가지 업로드할 수 있습니다");
+        }
         // 리뷰 ID 값은 나중에 기능 구현후 생성된 리뷰 ID 값으로 대체 예정
         ReviewCreateResponse response = new ReviewCreateResponse(1L,"리뷰가 성공적으로 등록되었습니다");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
