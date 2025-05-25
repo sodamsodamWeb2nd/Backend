@@ -41,7 +41,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "409", description = "이미 존재하는 이메일")
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 이메일/닉네임/전화번호")
     })
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@RequestBody UserSignupRequest request) {
@@ -83,6 +83,27 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal UserPersonalInfo user) {
         return ResponseEntity.ok(new UserResponse(user));
+    }
+
+    // 회원정보 수정 엔드포인트 추가
+    @Operation(summary = "회원정보 수정", description = "현재 로그인한 사용자의 닉네임과 전화번호를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수정 성공",
+                    content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+            @ApiResponse(responseCode = "409", description = "이미 사용 중인 닉네임 또는 전화번호")
+    })
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateUserInfo(
+            @AuthenticationPrincipal UserPersonalInfo user,
+            @RequestBody UserUpdateRequest request) {
+
+        log.info("회원정보 수정 요청 - 사용자: {}, 요청 데이터: nickname={}, phoneNumber={}",
+                user.getEmail(), request.getNickname(), request.getPhoneNumber());
+
+        UserResponse updatedUser = userService.updateUserInfo(user.getUserId(), request);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @Operation(summary = "카카오 로그인 페이지 URL 조회",

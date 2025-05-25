@@ -30,7 +30,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
 
                         // 카카오 인증 엔드포인트 허용
-                        .requestMatchers("/api/auth/kakao/**").permitAll()
+                        .requestMatchers("/api/users/kakao/**").permitAll()
+
+                        // 장소 검색 API 허용 (새로 추가!)
+                        .requestMatchers("/api/places/**").permitAll()
+
+                        // 테스트 API 허용
+                        .requestMatchers("/api/test/**").permitAll()
 
                         // Swagger UI 관련 경로들
                         .requestMatchers("/swagger-ui/**").permitAll()
@@ -42,6 +48,9 @@ public class SecurityConfig {
                         // 루트 경로와 파비콘
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
+
+                        // 정적 리소스 허용 (프론트엔드용)
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
                         // 기타 모든 요청은 인증 필요
                         .anyRequest().authenticated()
