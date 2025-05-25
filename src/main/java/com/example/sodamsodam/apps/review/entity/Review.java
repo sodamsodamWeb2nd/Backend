@@ -1,5 +1,6 @@
 package com.example.sodamsodam.apps.review.entity;
 
+import com.example.sodamsodam.apps.place.entity.PlaceEntity;
 import com.example.sodamsodam.apps.user.entity.UserPersonalInfo;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,12 +23,15 @@ public class Review {
     @Column(name = "review_id")
     private Long reviewId;
 
+    // 하나의 유저는 여러개의 리뷰 가짐
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserPersonalInfo user;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private Place place;
+    // 하나의 장소는 여러개의 리뷰를 가짐
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "place_id")
+    private PlaceEntity place;
 
     // 대용량 텍스트
     @Lob
