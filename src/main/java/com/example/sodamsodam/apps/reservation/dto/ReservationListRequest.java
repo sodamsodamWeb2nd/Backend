@@ -22,4 +22,6 @@ public class ReservationListRequest {
     @Schema(description = "페이지 당 항목 수", example = "10")
     private int size = 10;
 
+
+
 }
