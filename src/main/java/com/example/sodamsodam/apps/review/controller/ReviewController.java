@@ -1,6 +1,7 @@
 package com.example.sodamsodam.apps.review.controller;
 
 import com.example.sodamsodam.apps.review.dto.*;
+import com.example.sodamsodam.apps.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -23,6 +24,8 @@ import java.util.List;
 @Tag(name = "Review", description = "리뷰 관련 API")
 public class ReviewController {
 
+    private final ReviewService reviewService;
+
     @Operation(summary = "리뷰 작성", description = "해당 장소에 리뷰를 작성합니다")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "리뷰작성 성공"),
@@ -32,13 +35,12 @@ public class ReviewController {
     })
     @PostMapping(value = "/{place_id}/reviews",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewCreateResponse> createReview(@PathVariable Long place_id,
-                                                             @RequestPart("request") @Valid ReviewCreateRequest request,
-                                                             @RequestPart(value = "images",required = false) List<MultipartFile> images) { // 이미지 파일 업로드 방식 S3로 변경
+                                                             @ModelAttribute ("request") @Valid ReviewCreateRequest request,
+                                                             @RequestParam(value = "images",required = false) List<MultipartFile> images) { // 이미지 파일 업로드 방식 S3로 변경
         if (images == null || images.size() > 3) {
             throw new IllegalArgumentException("이미지는 최대 3장가지 업로드할 수 있습니다");
         }
-        // 리뷰 ID 값은 나중에 기능 구현후 생성된 리뷰 ID 값으로 대체 예정
-        ReviewCreateResponse response = new ReviewCreateResponse(1L,"리뷰가 성공적으로 등록되었습니다");
+        ReviewCreateResponse response = reviewService.createReview(place_id, request, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
