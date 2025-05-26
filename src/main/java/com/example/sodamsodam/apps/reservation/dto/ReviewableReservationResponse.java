@@ -19,7 +19,7 @@ public class ReviewableReservationResponse {
     private String placeName;
 
     @Schema(description = "방문 일시", example = "2025-05-10T19:00:00")
-    private LocalDateTime visitedAt;
+    private LocalDateTime reservedAt;
 
     @Schema(description = "리뷰 작성 여부", example = "false")
     private boolean reviewed;
