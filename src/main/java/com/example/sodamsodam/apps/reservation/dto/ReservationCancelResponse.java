@@ -13,7 +13,7 @@ public class ReservationCancelResponse {
     @Schema(description = "예약 ID", example = "1")
     private Long reservationId;
 
-    @Schema(description = "응답 메시지", example = "예약이 취소 완료")
+    @Schema(description = "응답 메시지", example = "예약 취소 완료")
     private String message;
 
     @Schema(description = "예약 상태", example = "canceled")
