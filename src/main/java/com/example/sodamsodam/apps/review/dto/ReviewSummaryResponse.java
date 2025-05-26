@@ -1,13 +1,17 @@
 package com.example.sodamsodam.apps.review.dto;
 
+import com.example.sodamsodam.apps.review.entity.Review;
+import com.example.sodamsodam.apps.review.entity.ReviewImage;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
-// 필드가 없는 생성자로 틀만 제공
 @NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "리뷰 전체 응답 DTO")
 public class ReviewSummaryResponse {
 
@@ -22,4 +26,18 @@ public class ReviewSummaryResponse {
 
     @Schema(description = "리뷰 이미지 (최대 3장)",example = "[\"https://s3.amazonaws.com/bucket/image1.jpg\"]")
     private List<String> imageUrls;  // 최대 3장만 추려서 전달
+
+    public static ReviewSummaryResponse fromReview(Review review) {
+
+        List<String> imageUrls = review.getImages().stream()
+                .map(ReviewImage::getImageUrl)  // ReviewImage에서 URL만 추출
+                .collect(Collectors.toList());
+
+        return new ReviewSummaryResponse(
+                review.getReviewId(),
+                review.getUser().getUserName(),
+                review.getContent(),
+                imageUrls
+        );
+    }
 }
