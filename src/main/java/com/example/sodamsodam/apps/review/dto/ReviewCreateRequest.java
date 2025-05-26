@@ -25,11 +25,11 @@ public class ReviewCreateRequest {
     @Size(max = 3, message = "태그는 최대 3장까지 업로드할 수 있습니다.")
     private List<String> tags;
 
-    public Review toEntity(UserPersonalInfo user, PlaceEntity place,String content) {
+    public Review toEntity(UserPersonalInfo user, PlaceEntity place) {
         return Review.builder()
                 .user(user)
                 .place(place)
-                .content(content)
+                .content(this.content)
                 .build();
     }
 }

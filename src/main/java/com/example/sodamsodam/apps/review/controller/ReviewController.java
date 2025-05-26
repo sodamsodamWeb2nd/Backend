@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -52,9 +51,8 @@ public class ReviewController {
     })
     @GetMapping("/{place_id}/reviews")
     public ResponseEntity<List<ReviewSummaryResponse>> getReviews(@PathVariable Long place_id) {
-        // 현재는 아무런 값이 없는 응답 DTO만 반환 -> 추후 로직 구현 단계에서 추가 예정
-        ReviewSummaryResponse response = new ReviewSummaryResponse();
-        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonList(response));
+        List<ReviewSummaryResponse> response = reviewService.getAllReviews(place_id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "로그인 유저의 리뷰 전체 조회", description = "로그인한 유저가 작성한 리뷰를 전체 조회합니다")
@@ -66,9 +64,8 @@ public class ReviewController {
     })
     @GetMapping("/{place_id}/reviews/me")
     public ResponseEntity<List<ReviewSummaryResponse>> getMyReviews(@PathVariable Long place_id) {
-        // 현재는 아무런 값이 없는 응답 DTO만 반환 -> 추후 로직 구현 단계에서 추가 예정
-        ReviewSummaryResponse response = new ReviewSummaryResponse();
-        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonList(response));
+        List<ReviewSummaryResponse> response = reviewService.getMyAllReviews(place_id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "리뷰 단건 조회", description = "특정 리뷰를 조회합니다")
@@ -79,8 +76,7 @@ public class ReviewController {
     })
     @GetMapping("/{place_id}/reviews/{review_id}")
     public ResponseEntity<ReviewDetailResponse> getReview(@PathVariable Long place_id,@PathVariable Long review_id) {
-        // 현재는 아무런 값이 없는 응답 DTO만 반환 -> 추후 로직 구현 단계에서 추가 예정
-        ReviewDetailResponse response = new ReviewDetailResponse();
+        ReviewDetailResponse response = reviewService.getReviewDetail(place_id,review_id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -92,8 +88,7 @@ public class ReviewController {
     })
     @GetMapping("/{place_id}/reviews/count")
     public ResponseEntity<ReviewCountResponse> getReviewCount(@PathVariable Long place_id) {
-        // 현재는 아무런 값이 없는 응답 DTO만 반환 -> 추후 로직 구현 단계에서 추가 예정
-        ReviewCountResponse response = new ReviewCountResponse();
+        ReviewCountResponse response = reviewService.getReviewCount(place_id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
