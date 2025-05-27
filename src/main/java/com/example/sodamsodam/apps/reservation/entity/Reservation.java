@@ -48,11 +48,9 @@ public class Reservation {
 
 
     // 리뷰 작성 여부(리뷰 작성 가능한 예약 조건에 필요함)
-    //리뷰작성 완료시 해당 예약의 reviewed필드를 true로 저장해줘야됨
+    //리뷰작성 완료시 해당 예약의 reviewed필드를 true로 저장해줘야됨 -> COMPLETED로 대체
     private boolean reviewed;
-    public void markReviewed() {
-        this.reviewed = true;
-    }
+
 
     public void cancel() {
         this.status = ReservationStatus.CANCELLED;
