@@ -1,5 +1,6 @@
 package com.example.sodamsodam.apps.reservation.dto;
 
+import com.example.sodamsodam.apps.reservation.entity.Reservation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,4 +25,12 @@ public class ReviewableReservationResponse {
     @Schema(description = "리뷰 작성 여부", example = "false")
     private boolean reviewed;
 
+    public static ReviewableReservationResponse from(Reservation reservation) {
+        return ReviewableReservationResponse.builder()
+                .reservationId(reservation.getReservationId())
+                .placeName(reservation.getPlaceName())
+                .reservedAt(reservation.getReservedAt())
+                .reviewed(reservation.isReviewed())
+                .build();
+    }
 }
