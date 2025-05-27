@@ -1,5 +1,6 @@
 package com.example.sodamsodam.apps.reservation.dto;
 
+import com.example.sodamsodam.apps.reservation.entity.Reservation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,16 @@ public class ReservationDetailResponse {
 
     @Schema(description = "예약 일시", example = "2025-06-01T14:00:00")
     private LocalDateTime reservedAt;
+
+    public static ReservationDetailResponse from(Reservation reservation) {
+        return ReservationDetailResponse.builder()
+                .reservationId(reservation.getReservationId())
+                .placeName(reservation.getPlaceName())
+                .address(reservation.getAddress())
+                .reservedAt(reservation.getReservedAt())
+                .status(reservation.getStatus().name().toLowerCase())
+                .build();
+    }
 
 
 
