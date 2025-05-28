@@ -27,13 +27,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 기본 API 엔드포인트 허용
-                        .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
+                        .requestMatchers("/api/v1/users/signup", "/api/v1/users/login").permitAll()
 
                         // 카카오 인증 엔드포인트 허용
-                        .requestMatchers("/api/users/kakao/**").permitAll()
+                        .requestMatchers("/api/v1/users/kakao/**").permitAll()
 
                         // 장소 검색 API 허용 (새로 추가!)
-                        .requestMatchers("/api/places/**").permitAll()
+                        .requestMatchers("/api/v1/places/**").permitAll()
 
                         // 테스트 API 허용
                         .requestMatchers("/api/test/**").permitAll()
