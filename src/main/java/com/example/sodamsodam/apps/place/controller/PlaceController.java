@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/places")
+@RequestMapping("/api/v1/places")
 @RequiredArgsConstructor
 @Tag(name = "Place", description = "장소 검색 및 관리 API")
 public class PlaceController {
@@ -115,51 +115,39 @@ public class PlaceController {
     }
 
     /**
-     * 카테고리별 장소 검색 (간편 검색)
-     * 예시: GET /api/places/category/FD6?x=127.027621&y=37.498095
+     * 장소 검색과 동시에 저장
+     * 예시: GET /api/places/search-and-save?query=스타벅스&x=127.027621&y=37.498095&radius=1000
      */
-    @Operation(summary = "카테고리별 장소 검색",
-            description = "특정 카테고리의 장소를 검색합니다. FD6(음식점), CE7(카페), CT1(문화시설) 등")
-    @GetMapping("/category/{categoryCode}")
-    public ResponseEntity<List<PlaceEntity>> searchByCategory(
-            @Parameter(description = "카테고리 코드", example = "FD6")
-            @PathVariable String categoryCode,
+    @Operation(summary = "장소 검색 및 저장",
+            description = "카카오맵 API를 통해 장소를 검색하고 동시에 데이터베이스에 저장합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "검색 및 저장 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터"),
+            @ApiResponse(responseCode = "500", description = "카카오맵 API 호출 실패 또는 저장 실패")
+    })
+    @GetMapping("/search-and-save")
+    public ResponseEntity<List<PlaceEntity>> searchAndSavePlaces(
+            @Parameter(description = "검색 키워드", example = "스타벅스", required = true)
+            @RequestParam String query,
 
-            @Parameter(description = "중심 좌표 X (경도)", example = "127.027621", required = true)
-            @RequestParam String x,
+            @Parameter(description = "중심 좌표 X (경도)", example = "127.027621")
+            @RequestParam(required = false) String x,
 
-            @Parameter(description = "중심 좌표 Y (위도)", example = "37.498095", required = true)
-            @RequestParam String y,
+            @Parameter(description = "중심 좌표 Y (위도)", example = "37.498095")
+            @RequestParam(required = false) String y,
 
             @Parameter(description = "검색 반경(미터)", example = "1000")
-            @RequestParam(required = false, defaultValue = "1000") Integer radius
+            @RequestParam(required = false) Integer radius,
+
+            @Parameter(description = "페이지 번호", example = "1")
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+
+            @Parameter(description = "페이지당 결과 수", example = "15")
+            @RequestParam(required = false, defaultValue = "15") Integer size
     ) {
-        log.info("카테고리별 검색 요청 - 카테고리: {}, 좌표: ({}, {})", categoryCode, x, y);
+        log.info("장소 검색 및 저장 요청 - 키워드: {}", query);
 
-        // 카테고리 코드를 키워드로 사용해서 검색
-        String query = getCategoryQuery(categoryCode);
-        List<PlaceEntity> places = placeService.searchPlaces(query, x, y, radius, 1, 15);
-
+        List<PlaceEntity> places = placeService.searchAndSavePlaces(query, x, y, radius, page, size);
         return ResponseEntity.ok(places);
-    }
-
-    /**
-     * 카테고리 코드를 검색 키워드로 변환하는 헬퍼 메서드
-     */
-    private String getCategoryQuery(String categoryCode) {
-        switch (categoryCode.toUpperCase()) {
-            case "FD6": return "음식점";
-            case "CE7": return "카페";
-            case "CT1": return "문화시설";
-            case "AT4": return "관광명소";
-            case "CS2": return "편의점";
-            case "MT1": return "대형마트";
-            case "SW8": return "지하철역";
-            case "PK6": return "주차장";
-            case "OL7": return "주유소";
-            case "HP8": return "병원";
-            case "PM9": return "약국";
-            default: return categoryCode;
-        }
     }
 }

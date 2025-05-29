@@ -64,6 +64,10 @@ public class PlaceEntity {
     @Column(name = "distance")
     private String distance;
 
+    // 장소 이미지 URL
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
     // 추가 정보들 (우리 서비스에서 관리)
     @Column(name = "description", length = 1000)
     private String description; // 장소 설명

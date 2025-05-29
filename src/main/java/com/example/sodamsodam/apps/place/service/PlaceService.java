@@ -29,6 +29,16 @@ public class PlaceService {
     private String kakaoApiKey;
 
     /**
+     * 특정 ID로 장소 조회
+     * @param placeId 조회할 장소 ID
+     * @return 장소 정보
+     */
+    public PlaceEntity getPlaceById(Long placeId) {
+        return placeRepository.findById(placeId)
+                .orElseThrow(() -> new RuntimeException("장소를 찾을 수 없습니다 - ID: " + placeId));
+    }
+
+    /**
      * 카카오맵 API로 장소를 검색하는 메서드
      * @param query 검색할 키워드 (예: "스타벅스", "카페")
      * @param x 중심 좌표 경도 (선택사항)
@@ -134,16 +144,6 @@ public class PlaceService {
     }
 
     /**
-     * 특정 ID로 장소 조회
-     * @param placeId 조회할 장소 ID
-     * @return 장소 정보
-     */
-    public PlaceEntity getPlaceById(Long placeId) {
-        return placeRepository.findById(placeId)
-                .orElseThrow(() -> new RuntimeException("장소를 찾을 수 없습니다 - ID: " + placeId));
-    }
-
-    /**
      * 카카오 API 응답을 우리 엔티티로 변환하는 private 메서드
      */
     private PlaceEntity convertToEntity(KakaoPlaceSearchResponse.Document doc) {
@@ -162,5 +162,31 @@ public class PlaceService {
                 .distance(doc.getDistance())
                 .isActive(true) // 기본적으로 활성화
                 .build();
+    }
+
+    /**
+     * 장소를 검색하고 즉시 데이터베이스에 저장하는 메서드
+     * @param query 검색할 키워드 (예: "스타벅스", "카페")
+     * @param x 중심 좌표 경도 (선택사항)
+     * @param y 중심 좌표 위도 (선택사항)
+     * @param radius 검색 반경(미터, 선택사항)
+     * @param page 페이지 번호 (기본값: 1)
+     * @param size 한 페이지당 결과 수 (기본값: 15, 최대 15)
+     * @return 검색 후 저장된 장소 목록
+     */
+    public List<PlaceEntity> searchAndSavePlaces(String query, String x, String y,
+                                                 Integer radius, Integer page, Integer size) {
+        // 장소 검색
+        List<PlaceEntity> searchedPlaces = searchPlaces(query, x, y, radius, page, size);
+        List<PlaceEntity> savedPlaces = new ArrayList<>();
+
+        // 검색된 각 장소를 저장
+        for (PlaceEntity place : searchedPlaces) {
+            PlaceEntity savedPlace = savePlace(place);
+            savedPlaces.add(savedPlace);
+        }
+
+        log.info("검색 및 저장 완료 - {}개 장소 저장됨", savedPlaces.size());
+        return savedPlaces;
     }
 }
