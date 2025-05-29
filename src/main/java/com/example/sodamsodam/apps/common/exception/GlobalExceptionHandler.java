@@ -56,6 +56,28 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("서버 오류가 발생했습니다."+ e.getMessage()));
     }
+
+    // 장소를 찾을수 없는 예외 처리 추가
+    @ExceptionHandler(PlaceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePlaceNotFoundException(PlaceNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotAuthenticated(UserNotAuthenticatedException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReviewNotFoundException(ReviewNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(e.getMessage()));
+    }
 }
 
 // 에러 응답 DTO

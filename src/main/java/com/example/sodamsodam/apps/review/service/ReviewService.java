@@ -1,5 +1,8 @@
 package com.example.sodamsodam.apps.review.service;
 
+import com.example.sodamsodam.apps.common.exception.PlaceNotFoundException;
+import com.example.sodamsodam.apps.common.exception.ReviewNotFoundException;
+import com.example.sodamsodam.apps.common.exception.UserNotAuthenticatedException;
 import com.example.sodamsodam.apps.place.entity.PlaceEntity;
 import com.example.sodamsodam.apps.place.repository.PlaceRepository;
 import com.example.sodamsodam.apps.review.dto.*;
@@ -30,7 +33,7 @@ public class ReviewService {
     @Transactional
     public ReviewCreateResponse createReview(Long placeId, ReviewCreateRequest request, List<MultipartFile> images) {
         PlaceEntity place = placeRepository.findById(placeId)
-                .orElseThrow(() -> new RuntimeException("Place not found"));
+                .orElseThrow(() -> new PlaceNotFoundException("해당 ID의 장소를 찾을 수 없습니다."));
 
         // 로그인한 유저를 가져옴
         UserPersonalInfo user = getCurrentUser();
@@ -66,7 +69,12 @@ public class ReviewService {
 
     // 리뷰 전체 조회
     public List<ReviewSummaryResponse> getAllReviews(Long place_id) {
-        List<Review> reviews = reviewRepository.findAllByPlace_Id(place_id);
+
+        PlaceEntity place = placeRepository.findById(place_id)
+                .orElseThrow(() -> new PlaceNotFoundException("해당 ID의 장소를 찾을 수 없습니다."));
+
+        List<Review> reviews = reviewRepository.findAllByPlace_Id(place.getId());
+
         return reviews.stream() // 리뷰 엔티티 리스트를 스트림 형태로 변환
                 .map(ReviewSummaryResponse::fromReview) // 각 Review 객체를 ReviewSummaryResponse DTO로 매핑 (정적 메서드 사용)
                 .collect(Collectors.toList());          // 스트림을 List<ReviewSummaryResponse> 형태로 수집 및 반환
@@ -75,9 +83,12 @@ public class ReviewService {
     // 유저 리뷰 전체 조회
     public List<ReviewSummaryResponse> getMyAllReviews(Long place_id) {
 
+        PlaceEntity place = placeRepository.findById(place_id)
+                .orElseThrow(() -> new PlaceNotFoundException("해당 ID의 장소를 찾을 수 없습니다."));
+
         UserPersonalInfo user = getCurrentUser();
 
-        List<Review> review = reviewRepository.findAllByPlace_IdAndUser_UserId(place_id,user.getUserId());
+        List<Review> review = reviewRepository.findAllByPlace_IdAndUser_UserId(place.getId(),user.getUserId());
 
         return review.stream()
                 .map(ReviewSummaryResponse::fromReview)
@@ -87,8 +98,11 @@ public class ReviewService {
     // 리뷰 단건 조회
     public ReviewDetailResponse getReviewDetail(Long place_id,Long review_id) {
 
-        Review review = reviewRepository.findByReviewIdAndPlace_Id(review_id,place_id)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+        PlaceEntity place = placeRepository.findById(place_id)
+                .orElseThrow(() -> new PlaceNotFoundException("해당 ID의 장소를 찾을 수 없습니다."));
+
+        Review review = reviewRepository.findByReviewIdAndPlace_Id(review_id,place.getId())
+                .orElseThrow(() -> new ReviewNotFoundException("해당 ID의 리뷰를 찾을 수 없습니다"));
 
         return ReviewDetailResponse.fromReview(review);
     }
@@ -96,7 +110,10 @@ public class ReviewService {
     // 리뷰 개수 조회
     public ReviewCountResponse getReviewCount(Long place_id) {
 
-        Long reviewCount = reviewRepository.countByPlace_Id(place_id);
+        PlaceEntity place = placeRepository.findById(place_id)
+                .orElseThrow(() -> new PlaceNotFoundException("해당 ID의 장소를 찾을 수 없습니다."));
+
+        Long reviewCount = reviewRepository.countByPlace_Id(place.getId());
 
         return ReviewCountResponse.builder()
                         .placeId(place_id)
@@ -108,7 +125,7 @@ public class ReviewService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !(authentication.getPrincipal() instanceof UserPersonalInfo)) {
-            throw new IllegalStateException("인증된 사용자를 찾을 수 없습니다");
+            throw new UserNotAuthenticatedException("로그인이 필요합니다");
         }
         return (UserPersonalInfo) authentication.getPrincipal();
     }
