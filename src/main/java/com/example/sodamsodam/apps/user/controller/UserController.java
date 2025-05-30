@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
+import java.net.URI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -127,14 +129,25 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 인가 코드"),
             @ApiResponse(responseCode = "500", description = "카카오 API 오류")
     })
+
     @GetMapping("/kakao/callback")
-    public ResponseEntity<LoginResponse> kakaoCallback(@RequestParam String code) {
+    public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
         try {
             String jwt = kakaoService.processKakaoLogin(code);
-            return ResponseEntity.ok(new LoginResponse(jwt));
+
+            // 로그인 성공 시 프론트엔드로 리다이렉트 (토큰 포함)
+            String redirectUrl = "http://localhost:3000/login/success?token=" + jwt;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(redirectUrl));
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
         } catch (Exception e) {
             log.error("카카오 로그인 처리 중 오류", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            // 실패 시 프론트엔드 로그인 페이지로 리다이렉트
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create("http://localhost:3000/login?error=kakao_login_failed"));
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
         }
     }
 
