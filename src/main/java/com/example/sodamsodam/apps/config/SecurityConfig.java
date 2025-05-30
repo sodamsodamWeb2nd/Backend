@@ -13,17 +13,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // 이 라인 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 기본 API 엔드포인트 허용
@@ -32,7 +35,7 @@ public class SecurityConfig {
                         // 카카오 인증 엔드포인트 허용
                         .requestMatchers("/api/v1/users/kakao/**").permitAll()
 
-                        // 장소 검색 API 허용 (새로 추가!)
+                        // 장소 검색 API 허용
                         .requestMatchers("/api/v1/places/**").permitAll()
 
                         // 테스트 API 허용
