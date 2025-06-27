@@ -16,6 +16,8 @@ public class CorsConfig {
         // 허용할 오리진 (프론트엔드 주소)
         configuration.addAllowedOrigin("http://localhost:5173"); // Vite 개발 서버
         configuration.addAllowedOrigin("http://127.0.0.1:5173"); // 다른 형태의 로컬호스트
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("http://localhost:8080");
 
         // 허용할 HTTP 메서드
         configuration.addAllowedMethod("GET");

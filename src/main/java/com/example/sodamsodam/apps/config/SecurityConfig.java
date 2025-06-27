@@ -26,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // 이 라인 추가
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 기본 API 엔드포인트 허용
@@ -54,6 +54,12 @@ public class SecurityConfig {
 
                         // 정적 리소스 허용 (프론트엔드용)
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+
+                        // 인증이 필요한 엔드포인트들
+                        .requestMatchers("/api/v1/users/logout").authenticated()  // 기존 로그아웃
+                        .requestMatchers("/api/v1/users/auth/logout").authenticated()  // 호환성 로그아웃
+                        .requestMatchers("/api/v1/users/auth/verify").authenticated()  // 토큰 검증
+                        .requestMatchers("/api/v1/users/me").authenticated()  // 내 정보 조회
 
                         // 기타 모든 요청은 인증 필요
                         .anyRequest().authenticated()
