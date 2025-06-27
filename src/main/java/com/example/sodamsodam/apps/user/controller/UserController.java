@@ -18,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpHeaders;
-import java.net.URI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +34,7 @@ public class UserController {
     @Value("${kakao.client.id:}")
     private String clientId;
 
-    @Value("${kakao.redirect.uri:http://localhost:8080/api/users/kakao/callback}")
+    @Value("${kakao.redirect.uri:}")
     private String redirectUri;
 
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
@@ -69,11 +67,14 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
     })
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         // HTTP 헤더에서 토큰 추출
         String token = resolveToken(request);
         userService.logout(token);
-        return ResponseEntity.ok().build();
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "로그아웃 성공");
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
@@ -87,7 +88,6 @@ public class UserController {
         return ResponseEntity.ok(new UserResponse(user));
     }
 
-    // 회원정보 수정 엔드포인트 추가
     @Operation(summary = "회원정보 수정", description = "현재 로그인한 사용자의 닉네임과 전화번호를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "수정 성공",
@@ -129,25 +129,34 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 인가 코드"),
             @ApiResponse(responseCode = "500", description = "카카오 API 오류")
     })
-
     @GetMapping("/kakao/callback")
-    public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
+    public ResponseEntity<Map<String, Object>> kakaoCallback(@RequestParam String code) {
         try {
+            log.info("카카오 로그인 콜백 처리 시작 - code: {}", code);
+
+            // 카카오 로그인 처리 및 JWT 토큰 생성
             String jwt = kakaoService.processKakaoLogin(code);
 
-            // 로그인 성공 시 프론트엔드로 리다이렉트 (토큰 포함)
-            String redirectUrl = "http://localhost:3000/login/success?token=" + jwt;
+            // JSON 응답으로 토큰 반환
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("token", jwt);
+            response.put("tokenType", "Bearer");
+            response.put("message", "카카오 로그인 성공");
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create(redirectUrl));
-            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+            log.info("카카오 로그인 성공");
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("카카오 로그인 처리 중 오류", e);
-            // 실패 시 프론트엔드 로그인 페이지로 리다이렉트
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create("http://localhost:3000/login?error=kakao_login_failed"));
-            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "카카오 로그인 처리 중 오류가 발생했습니다.");
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorResponse);
         }
     }
 
